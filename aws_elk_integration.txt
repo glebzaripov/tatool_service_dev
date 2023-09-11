@@ -1,0 +1,30 @@
+таблица куда писать
+datamart_rrp_nps.nps_categorized_comments_tatool
+
+SELECT sf_cl_id, fd.spice_id, sms_st_type, message_status , transaction_source, order_of_sms,
+                 REGEXP_REPLACE ( REPLACE ( replace((replace(nps_comment, '|', '')), chr(10), ''), '\r', '' ), '\n', '' ) AS "nps_comment"
+                  , COALESCE (score, first_sms_score) score,
+                 delivery_channel, transaction_status, id, transaction_pos_code,
+                 'fct_data' src, message_created_date
+             FROM datamart_rrp_nps.v_nps_fact_data fd
+             left JOIN (SELECT sf_account_id as sf_cl_id, spice_id FROM  rrp_consumers.v_fct_consumers) fc ON fc.spice_id = fd.spice_id
+             WHERE message_status = 'CompletedSMS' and order_of_sms = 'comment_message'
+      UNION
+      SELECT sf_cl_id, spice_id, '' sms_st_type, NULL message_status ,nps_origin__c as transaction_source, '' order_of_sms,      
+                REGEXP_REPLACE ( REPLACE ( replace((replace(nps_comment, '|', '')), chr(10), ''), '\r', '' ), '\n', '' ) AS "nps_comment"
+               , score,
+                 '' delivery_channel, '' transaction_status, id,'' transaction_pos_code,
+                 transaction_source as src, answerdate as  message_created_date
+             FROM u_durmaale.nps_trigger_comm
+
+Если для агентов - elk.pmrudc.com:9200
+Если в кибану залогиниться - lighthouse.pmruservice.com
+
+Индекс создан
+metricbeat-pmru_npsclassifier-prd-7.11.1-2021.09.02-000001
+
+Юзер для него:
+npsclassifier_beats
+
+Пароль:
+vu8aGKew

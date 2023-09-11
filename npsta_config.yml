@@ -1,0 +1,111 @@
+# list of preprocessor models, referenced in classifier models
+preprocessor_models:
+  - id: bert_768 # referenced in classifier_models
+    base_path: models/rubert_cased_L-12_H-768_A-12_v2 # base path to folder with preprocessor (currently bert) model
+    config_file: bert_config.json # relative to base_path
+    model: bert_model.ckpt.data-00000-of-00001 # relative to base_path
+    vocabulary: vocab.txt # relative to base_path
+    max_seq_length: 64 # max sequence length in subtokens
+
+  - id: conversational_bert_768
+    base_path: models/ru_conversational_cased_L-12_H-768_A-12
+    config_file: bert_config.json
+    model: bert_model.ckpt.data-00000-of-00001
+    vocabulary: vocab.txt
+    max_seq_length: 64
+
+# list of classifier models
+classifier_models:
+  - id: categories1 # referenced in classification requests
+    base_path: models/categories # base path to model folder
+    preprocessor_model_id: bert_768 # reference to preprocessor mode
+    model: model # base model filename (*.index, *.meta, *.data*)
+    vocabulary: category_vocab.txt # () relative to base_path
+    confident_threshold: 0.4 # boundary probability value for sample to belong with the class
+    max_text_length: 70 # max text (comment) length in characters, if text is greater, it's split into
+                        # parts below this size and resulting probabilities for parts are maximized
+    multilabel: true # whether the result can contain multiple labels(classes) or a top one only
+  - id: categories2
+    base_path: models/categories2
+    preprocessor_model_id: conversational_bert_768
+    model: model16
+    vocabulary: category_vocab.txt
+    confident_threshold: 0.4
+    max_text_length: 70
+    multilabel: true
+  - id: categories4 # referenced in classification requests
+    base_path: models/categories # base path to model folder
+    preprocessor_model_id: bert_768 # reference to preprocessor mode
+    model: model # base model filename (*.index, *.meta, *.data*)
+    vocabulary: category_vocab.txt # () relative to base_path
+    confident_threshold: 0.4 # boundary probability value for sample to belong with the class
+    max_text_length: 70 # max text (comment) length in characters, if text is greater, it's split into
+                        # parts below this size and resulting probabilities for parts are maximized
+    multilabel: true # whether the result can contain multiple labels(classes) or a top one only
+
+authentication:
+  - uid: 0
+    username: qa_user
+    password: vnDdvIf_73hB!K$gxiO
+  - uid: 1
+    username: prod_user
+    password: FdJer6U!hd_hKd4_ki
+  - uid: 3
+    username: monitoring
+    password: fcH3sQ_NdR7i!smW
+  - uid: 4
+    username: dwh
+    password: jtf%R_s$8NMf
+
+elastic_logging:
+  enabled: true
+  host: elastic.pmruservices.com
+  port: 443
+  user: npsta
+  password: vbKi65_hnXj!74hO
+  bulk_period: 0.5
+  index_file: elasticsearch_index.json
+
+local_db:
+  path: models/models.db
+
+medalia_api:
+  test:
+    token_url: https://pmsm.medallia.eu/oauth/pmsm/token
+    import_url: https://pmsm.apis.medallia.com/inbound/v1/test_ta_import_data
+    client_id: test_ta_oauth
+    client_secret: 0ae68f478e4a248f10703814ccd1ceb1
+    scope: read:ta
+  prod:
+    token_url: https://pmsm.medallia.eu/oauth/pmsm/token
+    import_url: https://pmsm.apis.medallia.com/inbound/v1/ta_import_data
+    client_id: ta_oauth
+    client_secret: df8f576a05a606513ca43d24c181f980
+    scope: read:ta
+
+kafka_api:
+  uat:
+    base_url: https://uat-esb.pmidev.com
+    taxons_topic: uat.tatool.consumeranswertaxonomy
+    user: PMRU\svcUatESBTATool
+    password: 6{8?j*X)t_KT!~G
+  prod:
+    base_url: https://esb.pmrudc.com
+    taxons_topic: prod.tatool.consumeranswertaxonomy
+    user: PMRU\svcESBTATool
+    password: shT+4mNYel;nB*Q
+
+dwh:
+  classification:
+    url: https://host.docker.internal
+    user: dwh
+    password: jtf%R_s$8NMf
+    model: categories1
+  redshift_url: postgresql://nps_editor:qJ8F5nu9@db2.awspmastra.com:5439/prod
+  batch_limit: 1000
+  classification_limit: 20
+
+environments:
+  medalia_api: prod
+  kafka_api: prod
+

@@ -1,0 +1,32 @@
+https://uat-esb.pmidev.com/messaging/t.%s/send
+https://esb.pmrudc.com/messaging/t.%s/send
+
+prod.tatool.consumeranswertaxonomy
+uat.tatool.consumeranswertaxonomy
+
+PMRU\svcUatESBTATool
+6{8?j*X)t_KT!~G
+
+PMRU\svcESBTATool
+shT+4mNYel;nB*Q
+
+{
+{  "BusinessEvent": 
+{    "$type": "PMI.BDDM.Common.Update",--const    
+"BusinessEntity": {      
+"$type": "PMI.BDDM.Transactionaldata.ConsumerAnswerTaxonomy",--const     
+ "Name": "Name Value",--название таксона   
+ "Code": "Code Value",--ид таксона
+ "CodeSpace": "SmacX",--const = TATool
+  "Description": "Description Value",--=Name
+  "Taxonomy": {
+            "Code": "Taxonomy_1", ид таксономии
+            "Name": "Sales" название таксономии
+  },
+  "Status": "Active",--подумать как учитывать деативацию
+  "CreationTime": "2021-01-16T18:32:05.7446813+03:00",
+  "UpdateTime": "2021-02-16T18:32:05.7446813+03:00",
+  }
+},
+"EventTime": "2021-02-16T18:32:05.7456745+03:00"
+}

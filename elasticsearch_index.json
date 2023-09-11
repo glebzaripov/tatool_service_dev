@@ -1,0 +1,19 @@
+[
+  {
+    "name": "logs-npsta-service",
+    "definition": {
+      "mappings": {
+        "properties": {
+          "@timestamp": {
+            "type": "date"
+          },
+          "details": {
+            "type": "object"
+          },
+          "message": { "type": "text" },
+          "tags": { "type": "keyword" }
+        }
+      }
+    }
+  }
+]
