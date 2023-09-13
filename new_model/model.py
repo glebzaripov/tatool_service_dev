@@ -145,7 +145,7 @@ class ReplyModel(pl.LightningModule):
         pooled_output = hidden_state[:, 0]  # (bs, dim)
         return pooled_output
 
-    def get_categories(self, comments: List[str]):
+    def get_categories(self, comments: List[str]) -> List[List[str]]:
         encoding = tokenizer.batch_encode_plus(
           comments,
           add_special_tokens=True,
