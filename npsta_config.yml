@@ -40,9 +40,13 @@ classifier_models:
     vocabulary: category_vocab.txt # () relative to base_path
     confident_threshold: 0.4 # boundary probability value for sample to belong with the class
     max_text_length: 70 # max text (comment) length in characters, if text is greater, it's split into
-                        # parts below this size and resulting probabilities for parts are maximized
+                        #parts below this size and resulting probabilities for parts are maximized
     multilabel: true # whether the result can contain multiple labels(classes) or a top one only
 
+classifier_models_new:
+  - id: categories1
+    ckpt_name: epoch=79-step=12720_28082023.ckpt
+    
 authentication:
   - uid: 0
     username: qa_user

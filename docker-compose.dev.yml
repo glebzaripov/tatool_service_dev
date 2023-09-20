@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  classifier:
+    #image: k5o5t/nps-classifier:1.2
+    image: nps-classifier-local2
+    #context: .
+    #dockerfile: ./Dockerfile
+    volumes:
+      - ./models:/classifier/models
+      - ./npsta_config.yml:/classifier/npsta_config.yml
+      - ./new_model:/classifier/new_model
+      - ./uwsgi.ini:/classifier/uwsgi.ini
+      - ./nps_classifier.py:/classifier/nps_classifier.py
+      - ./taxonomy_sync.py:/classifier/taxonomy_sync.py
+    restart: always
+    ports:
+#      - "8091:9191"
+      - "8050:5000"
+      #- "5678:5778"
+
+#  dwh_integration:
+#    image: k5o5t/nps-classifier-dwh:1.0
+#    volumes:
+#      - ./models:/classifier/models
+#      - ./npsta_config.yml:/classifier/npsta_config.yml
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    depends_on:
+#      - classifier
+  # nginx:
+    # image: k5o5t/nps-classifier-nginx:1.0
+    # #context: .
+    # #dockerfile: ./Dockerfile-Nginx
+    # restart: always
+    # ports:
+      # - "443:3000"
+    # depends_on:
+      # - classifier

@@ -130,7 +130,7 @@ def _send_taxon_to_kafka(event, config, logger):
 
 def get_taxon_code(taxonomy_name, taxon_name):
     taxon_processed = taxon_name.lower()
-    for ch in [' ', '/', '\\', ',', '.', '&', '(', ')', '"']:
+    for ch in [' ', '/', '\\', ',', '.', '&', '(', ')', '"', '-']:
         taxon_processed = taxon_processed.replace(ch, '')
     return '%s_%s' % (taxonomy_name, taxon_processed)
 

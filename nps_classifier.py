@@ -20,6 +20,9 @@ from preprocessor_model import *
 from nps_model import *
 from user import User
 
+import torch
+from new_model.model import ReplyModel
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 pd.set_option('display.max_colwidth', -1)
 
@@ -53,8 +56,24 @@ class Server:
             preprocessor_model = self.preprocessor_models[config.preprocessor_model_id]
             self.models[config.id] = NpsModel(path, config, preprocessor_model)
 
+        self.load_new_model()
+
         self.logger.log_event('Service started on %s' % socket.gethostname())
         self.rectification = re.compile(r'[|qwertyuiopasdfghjklzxcvbnm@#$%^&*~`«»<>=\-\+\[\]\{\}\d]')
+
+    def load_new_model(self):
+        config = list(filter(lambda x: x['id'] == 'categories1',
+                             self.config['classifier_models_new']))[0]
+        self.models['categories1_new'] = ReplyModel().load_from_checkpoint(
+            f"./new_model/{config.get('ckpt_name')}",
+            map_location=torch.device('cpu'),
+            strict=False
+        )
+        self.models['categories1_new'].eval()
+        self.models['categories1_new'].freeze()
+
+        if self.models.get('categories1') is None:
+            self.models['categories1'] = self.models['categories1_new']
 
     def join(self):
         self.medalia.join()
@@ -109,7 +128,10 @@ class Server:
         for model_id, comments in grouped_comments.items():
             if model_id in self.models:
                 model_categories_column = self.__get_model_column(model_id)
-                result = self.models[model_id].classify(comments, model_categories_column)
+                if model_id == 'categories1':
+                    result = self.models['categories1_new'].classify(comments, model_categories_column)
+                else:
+                    result = self.models[model_id].classify(comments, model_categories_column)
                 result_by_models[model_id] = result
 
         classification_result = self.__merge_results(nps_comments, result_by_models)

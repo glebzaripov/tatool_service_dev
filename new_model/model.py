@@ -1,5 +1,6 @@
 from typing import List
 
+import pandas as pd
 import torch
 import pytorch_lightning as pl
 from transformers import AutoModel, AutoTokenizer, AutoConfig
@@ -14,99 +15,99 @@ MAX_COMMENT_LEN = 400
 
 
 class_mapper = [
-    "categories1_generalpositiveblank",
-    "categories1_generalpositiveservice",
-    "categories1_generalcommentsproduct",
-    "categories1_smellusage",
-    "categories1_comparisonwithcigarettesusage",
-    "categories1_easeofuse",
-    "categories1_smokingandnicotineharmrecommendations",
-    "categories1_generalpositivesalesexpert",
-    "categories1_alreadyrecommendedrecommendations",
-    "categories1_devicebreakageproduct",
-    "categories1_taste",
-    "categories1_completelyswitchedtorrpusage",
-    "categories1_designproduct",
-    "categories1_noashsmokecombustionusage",
-    "categories1_sticksqualityproduct",
-    "categories1_improvedhealthhealth",
-    "categories1_commentsonscorerecommendations",
-    "categories1_replacementservice",
-    "categories1_sticksprice",
-    "categories1_devicebatteryproduct",
-    "categories1_sticksassortmentservice",
-    "categories1_generalprice",
-    "categories1_sessiondurationusage",
-    "categories1_discountspromotion",
-    "categories1_generalnegativeservice",
-    "categories1_cleaningusage",
-    "categories1_expertisesalesexpert",
-    "categories1_quitnicotinecompletely",
-    "categories1_comparingdeviceversionsproduct",
-    "categories1_problemnotsolvedservice",
-    "categories1_generalnegativeblank",
-    "categories1_socialinclusion",
-    "categories1_canuseeverywhereusage",
-    "categories1_everyonechooseshimselfrecommendations",
-    "categories1_devicecomparisonwithcompetitorsproduct",
-    "categories1_nosaturationusage",
-    "categories1_adverseeventhealth",
-    "categories1_earlypollrecommendations",
-    "categories1_chargerandholderprice",
-    "categories1_generalpositiveremotecare",
-    "categories1_deliveryspeed",
-    "categories1_companyandbrandblank",
-    "categories1_improvementideaproduct",
-    "categories1_orderdeliverydetailsaccuracy",
-    "categories1_trialapplicationprocess",
-    "categories1_storelocationandcoverage",
-    "categories1_comparisonwithelectroniccigarettesproduct",
-    "categories1_problemnotsolvedremotecare",
-    "categories1_spamcommunication",
-    "categories1_accessoriesqualityproduct",
-    "categories1_indulgence",
-    "categories1_storeatmosphereeglightamenities",
-    "categories1_rudenesssalesexpert",
-    "categories1_chargerandholderassortmentservice",
-    "categories1_problemnotsolvedsalesexpert",
-    "categories1_longservicesalesexpert",
-    "categories1_nofriendsrecommendations",
-    "categories1_accessoriesassortmentservice",
-    "categories1_wrongtimedelivery",
-    "categories1_longserviceremotecare",
-    "categories1_sticksavailabilityservice",
-    "categories1_loyaltypointsaccumulationandredemption",
-    "categories1_storecleanlinesstidiness",
-    "categories1_courierservicedelivery",
-    "categories1_cancellationnotbyclientwilldelivery",
-    "categories1_deviceleproduct",
-    "categories1_fraudsalesexpert",
-    "categories1_personaldatachangecommunication",
-    "categories1_chargerandholderavailabilityservice",
-    "categories1_outdeliveryareadelivery",
-    "categories1_differentcommunicationservice",
-    "categories1_lendingservice",
-    "categories1_deviceindicationproduct",
-    "categories1_technicalissueservice",
-    "categories1_expertiseremotecare",
-    "categories1_technicalproblemswebsite",
-    "categories1_checkoutandpaymentprocess",
-    "categories1_returnservice",
-    "categories1_accessoriesprice",
-    "categories1_queuesalesexpert",
-    "categories1_marketingcontentdesign",
-    "categories1_servicerefusedsalesexpert",
-    "categories1_accessoriesavailabilityservice",
-    "categories1_servicerefusedservice",
-    "categories1_brokedevicesalesexpert",
-    "categories1_noinformationwebsite",
-    "categories1_rudenessremotecare",
-    "categories1_registrationprocess",
-    "categories1_websitedesign",
-    "categories1_storeclosedsalesexpert",
-    "categories1_storelocatorwebsite",
-    "categories1_botservice",
-    "categories1_blank"
+    "General positive - blank",
+    "General positive - service",
+    "General comments - product",
+    "Smell - usage",
+    "Comparison with cigarettes - usage",
+    "Ease of use",
+    "Smoking and nicotine harm - recommendations",
+    "General positive - sales expert",
+    "Already recommended - recommendations",
+    "Device breakage - product",
+    "Taste",
+    "Completely switched to RRP - usage",
+    "Design - product",
+    "No ash, smoke, combustion - usage",
+    "Sticks quality - product",
+    "Improved health - health",
+    "Comments on score - recommendations",
+    "Replacement - service",
+    "Sticks price",
+    "Device battery - product",
+    "Sticks assortment - service",
+    "General price",
+    "Session duration - usage",
+    "Discounts/ promotion",
+    "General negative - service",
+    "Cleaning - usage",
+    "Expertise - sales expert",
+    "Quit nicotine completely",
+    "Comparing device versions - product",
+    "Problem not solved - service",
+    "General negative - blank",
+    "Social inclusion",
+    "Can use everywhere - usage",
+    "Everyone chooses himself - recommendations",
+    "Device comparison with competitors - product",
+    "No saturation - usage",
+    "Adverse event - health",
+    "Early poll - recommendations",
+    "Charger and holder price",
+    "General positive - remote care",
+    "Delivery speed",
+    "Company and brand - blank",
+    "Improvement idea - product",
+    "Order & delivery details accuracy",
+    "Trial application process",
+    "Store location and coverage",
+    "Comparison with electronic cigarettes - product",
+    "Problem not solved - remote care",
+    "Spam - communication",
+    "Accessories quality - product",
+    "Indulgence",
+    "Store atmosphere (e.g. light, amenities)",
+    "Rudeness - sales expert",
+    "Charger and holder assortment - service",
+    "Problem not solved - sales expert",
+    "Long service - sales expert",
+    "No friends - recommendations",
+    "Accessories assortment - service",
+    "Wrong time - delivery",
+    "Long service - remote care",
+    "Sticks availability - service",
+    "Loyalty points accumulation and redemption",
+    "Store cleanliness/ tidiness",
+    "Courier service - delivery",
+    "Cancellation not by client will - delivery",
+    "Device LE - product",
+    "Fraud - sales expert",
+    "Personal data change - communication",
+    "Charger and holder availability - service",
+    "Out delivery area - delivery",
+    "Different communication - service",
+    "Lending - service",
+    "Device indication - product",
+    "Technical issue - service",
+    "Expertise - remote care",
+    "Technical problems - website",
+    "Checkout and payment process",
+    "Return - service",
+    "Accessories price",
+    "Queue - sales expert",
+    "Marketing content & design",
+    "Service refused - sales expert",
+    "Accessories availability - service",
+    "Service refused - service",
+    "Broke device - sales expert",
+    "No information - website",
+    "Rudeness - remote care",
+    "Registration process",
+    "Website design",
+    "Store closed - sales expert",
+    "Store locator - website",
+    "Bot - service",
+    "blank",
 ]
 
 class ReplyModel(pl.LightningModule):
@@ -145,7 +146,40 @@ class ReplyModel(pl.LightningModule):
         pooled_output = hidden_state[:, 0]  # (bs, dim)
         return pooled_output
 
+    def classify(self, data, categories_column, batch_size=10000):
+        res = []
+        for i in range(0, len(data), batch_size):
+            data_batch = data[i:i + batch_size]
+
+            categories = self.get_categories(list(data_batch.nps_comments))
+            result_batch = ReplyModel.__create_result_batch(data_batch, categories, categories_column)
+
+            if len(res) == 0:
+                res = result_batch
+            else:
+                res = res.append(result_batch)
+
+        return res
+
+    @staticmethod
+    def __create_result_batch(data_batch, categories, categories_column):
+        result = pd.DataFrame()
+        result['id'] = data_batch['id']
+        result[categories_column] = list(map(ReplyModel.process_blank_category, categories))
+        return result
+
+    @staticmethod
+    def process_blank_category(categories):
+        if len(categories) == 0:
+            return ['blank']
+
+        if len(categories) == 1:
+            return categories
+
+        return [c for c in categories if c != 'blank']
+
     def get_categories(self, comments: List[str]) -> List[List[str]]:
+        
         encoding = tokenizer.batch_encode_plus(
           comments,
           add_special_tokens=True,
@@ -161,13 +195,17 @@ class ReplyModel(pl.LightningModule):
         )
         cat_ids: torch.Tensor = model_output > 0.85
         cat_ids = cat_ids.nonzero()
+        
         result = []
         for i in range(len(comments)):
             categories = [int(cat_id) for k, cat_id in cat_ids if k == i]
+            if not comments[i]:
+                result.append([class_mapper[-1]])
+                continue
             if not categories:
                 categories = torch.topk(model_output[i], 1)
                 if categories.values[0] < 0.5:
-                    result.append(["categories1_blank"])
+                    result.append([class_mapper[-1]])
                     continue
                 categories = [categories.indices[0]]
             categories.sort(key=lambda x: model_output[i, x], reverse=True)
@@ -185,7 +223,8 @@ if __name__ == '__main__':
     a = model.get_categories(
             [
 
-"Пусть сами решают",
+"", #"Пусть сами решают",
+"", #"Пусть сами решают",
 "Почему так нравится мне просто это ж ваше приспособление",
 "Потому что вы хороши",
 "Спасибо за вашу продукцию.Если для окружающих стики не будут сильно пахнуть, и нам, курящим будет лучше ощущаться "
@@ -230,6 +269,20 @@ if __name__ == '__main__':
 "Сотрудника нет на месте, а я очень тороплюсь",
 "Потому что идёт введение в заблуждение клиента. Отсутствует заинтересованность в клиенте.",
 
-            ]
+            ][:2]
     )
-    print(a)
+    for i,v in enumerate(a,1):
+        print(i,v)
+
+'''
+1 ['categories1_smokingandnicotineharmrecommendations', 'categories1_generalnegativeblank']
+2 ['categories1_commentsonscorerecommendations']
+3 ['categories1_commentsonscorerecommendations']
+4 ['categories1_indulgence', 'categories1_taste', 'categories1_socialinclusion', 'categories1_comparisonwithelectroniccigarettesproduct', 'categories1_alreadyrecommendedrecommendations', 'categories1_comparisonwithcigarettesusage']
+5 ['categories1_problemnotsolvedservice', 'categories1_commentsonscorerecommendations', 'categories1_generalnegativeblank']
+6 ['categories1_comparisonwithcigarettesusage']
+7 ['categories1_easeofuse']
+8 ['categories1_generalcommentsproduct']
+9 ['categories1_problemnotsolvedservice', 'categories1_devicebreakageproduct', 'categories1_generalnegativeservice', 'categories1_replacementservice']
+10 ['categories1_smokingandnicotineharmrecommendations']
+'''
